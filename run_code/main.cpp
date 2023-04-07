@@ -31,8 +31,6 @@ int main()
 	cv::Mat src_img_;
 	ArmorDetector armor_detector;
 	
-	//std::unique_ptr<KalmanPredictor::KalmanFilter> pitch_kf_;
-    //std::unique_ptr<KalmanPredictor::KalmanFilter> yaw_kf_;
 
     fps::FPS       global_fps_;
     while (true)  

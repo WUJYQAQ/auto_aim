@@ -1,5 +1,5 @@
 #CMake最小版本
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.16)
 
 #项目名称
 PROJECT(606Vision VERSION 2023.3.2 LANGUAGES CXX) 
@@ -30,8 +30,13 @@ add_compile_options("$<$<CONFIG:RELEASE>:-DRELEASE>")
 # 默认不进行test？
 set(BUILD_TEST False)
 
+SET(CMAKE_PREFIX_PATH /opt/intel/openvino_2021/deployment_tools/inference_engine/share)
+FIND_PACKAGE(InferenceEngine REQUIRED)
+
 # 查找opencv包
-FIND_PACKAGE(OpenCV REQUIRED) 
+SET(OpenCV_DIR "/opt/intel/openvino_2021/opencv/cmake")
+FIND_PACKAGE(OpenCV 4 REQUIRED)
+FIND_PACKAGE(Eigen3 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 link_libraries(${OpenCV_LIBS})
 
@@ -77,26 +82,26 @@ list(APPEND EXTRA_INCLUDES MVSDK)
 
 # Add module as shared library to build target
 # 将各个库
-#list(APPEND EXTRA_INCLUDES ArmorDetector)
+list(APPEND EXTRA_INCLUDES auto_aim)
 
-list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/ArmorDetector/ArmorDetector)
-add_library(armor_detector SHARED ArmorDetector/ArmorDetector.cpp)
-list(APPEND WV_EXTRA_LIBS armor_detector)
+list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/Detector/ArmorDetector ${PROJECT_SOURCE_DIR}/auto_aim/Detector/ApexDetector)
+add_library(detector SHARED Detector/ArmorDetector/ArmorDetector.cpp Detector/ApexDetector/ApexDetector.cpp)
+list(APPEND WV_EXTRA_LIBS detector)
 
-list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/ArmorDetector/PoseSolver)
+list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/PoseSolver)
 add_library(pose_solver SHARED PoseSolver/PoseSolver.cpp)
 list(APPEND WV_EXTRA_LIBS pose_solver)
 
-list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/ArmorDetector/KalmanPredictor)
+list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/KalmanPredictor)
 add_library(kalman_predictor SHARED KalmanPredictor/KalmanPredictor.cpp)
 list(APPEND WV_EXTRA_LIBS kalman_predictor)
 
-list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/ArmorDetector/Serial)
+list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/Serial)
 add_library(serial SHARED Serial/Serial.cpp)
 list(APPEND WV_EXTRA_LIBS serial)
 
 
-list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/ArmorDetector/MVCamera)
+list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/MVCamera)
 add_library(mindvision_camera SHARED MVCamera/MVCamera.cpp)
 target_link_libraries(mindvision_camera
     PRIVATE
@@ -107,12 +112,16 @@ list(APPEND WV_EXTRA_LIBS mindvision_camera)
 # Add utils header
 # list(APPEND EXTRA_INCLUDES utils)
 
-list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/ArmorDetector/utils)
-add_library(utils SHARED utils/fps.cpp)
+list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/utils)
+add_library(utils SHARED utils/fps.cpp utils/general.cpp)
 list(APPEND WV_EXTRA_LIBS utils)
+
+
 
 # Add EXTRA_INCLUDES to project includes
 include_directories(${EXTRA_INCLUDES})
+INCLUDE_DIRECTORIES(${InferenceEngine_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
 
 add_executable(606Vision run_code/main.cpp)
 
@@ -122,7 +131,8 @@ target_link_libraries(606Vision
     fmt::fmt
     ${OpenCV_LIBS}
     ${EXTRA_LIBS}
-
+    ${Eigen3_LIBRARIES}
+    ${InferenceEngine_LIBRARIES}
     PRIVATE
     ${WV_EXTRA_LIBS}
 )

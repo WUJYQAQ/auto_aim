@@ -1,4 +1,5 @@
 #include"ArmorDetector.hpp"
+using namespace armor_detector;
 
 ArmorDetector::ArmorDetector()
 {
@@ -323,9 +324,6 @@ std::vector<cv::Point2f> ArmorDetector::returnFinalArmorRect()
 
 	return	image_points;
 }
-
-
-
 
 
 

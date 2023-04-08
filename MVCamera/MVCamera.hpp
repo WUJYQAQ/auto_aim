@@ -80,7 +80,7 @@ struct CameraParam
 class MVCamera
 {
 public:
-    MVCamera()=default;
+    MVCamera()=default; 
     explicit MVCamera(const mindvision::CameraParam &_camera_param);
 
     ~MVCamera();

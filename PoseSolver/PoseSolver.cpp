@@ -79,10 +79,10 @@ void PoseSolver::setObjPoints(ArmorType type, double width, double height)
 	switch (type)
 	{
 	case smallArmor:
+	    smallObjPoints.push_back(Point3f(-centerX, centerY, 0));   //tl top left左上
 		smallObjPoints.push_back(Point3f(-centerX, -centerY, 0));  //bl below left左下
-		smallObjPoints.push_back(Point3f(-centerX, centerY, 0));   //tl top left左上
-		smallObjPoints.push_back(Point3f(centerX, centerY, 0));	//tr top right右上
 		smallObjPoints.push_back(Point3f(centerX, -centerY, 0));   //br below right右下
+		smallObjPoints.push_back(Point3f(centerX, centerY, 0));	//tr top right右上
 		break;
 
 	case bigArmor:
@@ -115,11 +115,11 @@ void PoseSolver::solvePose(int armorType)
 	switch (armorType)
 	{
 	case smallArmor:
-		solvePnP(bigObjPoints, imagePoints, instantMatrix, distortionCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE); 
+		solvePnP(smallObjPoints, imagePoints, instantMatrix, distortionCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE); 
 		cout<<"                       小装甲板"<<endl;
 		break;
 	case bigArmor:
-		solvePnP(smallObjPoints, imagePoints, instantMatrix, distortionCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE); 
+		solvePnP(bigObjPoints, imagePoints, instantMatrix, distortionCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE); 
 		cout<<"                       大装甲板"<<endl;
 		break;
 	default:

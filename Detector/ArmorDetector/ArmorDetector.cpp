@@ -252,10 +252,10 @@ bool ArmorDetector::matchLights(const int i, const int j)
 					armorData.p2= right_light_points[2];
 					armorData.p3 = right_light_points[3];
 
-					armorData.armor_points[0]= left_light_points[0];
-					armorData.armor_points[1] = left_light_points[1];
-					armorData.armor_points[2] = right_light_points[2];
-					armorData.armor_points[3] = right_light_points[3];
+					armorData.armor_points[0]= left_light_points[1];
+					armorData.armor_points[1] = left_light_points[0];
+					armorData.armor_points[2] = right_light_points[3];
+					armorData.armor_points[3] = right_light_points[2];
 
 
 					armorData.armor_lt = left_light_points[1];

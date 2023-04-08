@@ -80,7 +80,7 @@ int main()
 		std::cout<<endl<<"距离"<<poseSolver.getDistance()<<endl;
 
 	
-		serial.sendData(0,poseSolver.getYawAngle(),poseSolver.getPitchAngle(),poseSolver.getDistance());
+		//serial.sendData(0,poseSolver.getYawAngle(),poseSolver.getPitchAngle(),poseSolver.getDistance());
 		
 
 		

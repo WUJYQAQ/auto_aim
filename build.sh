@@ -17,7 +17,7 @@ cd build/
 
 echo "606root" | sudo -S sudo cmake ..
 
-echo "606root" | sudo -S sudo make -j8
+echo "606root" | sudo -S sudo make -j
 
 #echo "606root" | sudo -S sudo ./build/bin/606Vision
 #echo "606root" | sudo -S sudo ./bin/WolfVision

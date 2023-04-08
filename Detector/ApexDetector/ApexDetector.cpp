@@ -439,12 +439,16 @@ void ApexDetector::display(Mat &image2show, ArmorObject object) {
     line(image2show, Point2f(0, image2show.size().height / 2), Point2f(image2show.size().width, image2show.size().height / 2), {0,255,0}, 1);
 
     // 绘制四点
-    for (int i = 0; i < 4; i++) {
-        circle(image2show, Point(object.apex[i].x, object.apex[i].y), 3, Scalar(100, 200, 0), 5);
-    }
+    // for (int i = 0; i < 4; i++) {
+    //     circle(image2show, Point(object.apex[i].x, object.apex[i].y), 3, Scalar(100, 200, 0), 5);
+    // }
     // 绘制左上角顶点
-    circle(image2show, Point(object.apex->x, object.apex->y),3,Scalar(255, 255, 0),8 );
-
+    //circle(image2show, Point(object.apex->x, object.apex->y),3,Scalar(255, 255, 0),8 );
+    circle(image2show, Point(object.apex[0].x, object.apex[0].y), 3, Scalar(255, 0, 0), 5);
+    circle(image2show, Point(object.apex[1].x, object.apex[1].y), 3, Scalar(0, 255, 0), 5);
+    circle(image2show, Point(object.apex[2].x, object.apex[2].y), 3, Scalar(0, 0, 255), 5);
+    circle(image2show, Point(object.apex[3].x, object.apex[3].y), 3, Scalar(255, 255, 0), 5);
+    
     // 绘制装甲板四点矩形
     for (int i = 0; i < 4; i++) {
         line(image2show, object.pts[i], object.pts[(i + 1) % 4], Scalar(100, 200, 0), 3);

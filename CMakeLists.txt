@@ -123,7 +123,7 @@ include_directories(${EXTRA_INCLUDES})
 INCLUDE_DIRECTORIES(${InferenceEngine_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
 
-add_executable(606Vision run_code/main.cpp)
+add_executable(606Vision 606/main.cpp)
 
 # Add shared library link to 606Vision
 target_link_libraries(606Vision

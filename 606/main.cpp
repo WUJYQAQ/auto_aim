@@ -5,7 +5,7 @@
 #include"../MVCamera/MVCamera.hpp"
 #include"Serial/Serial.hpp"
 #include"utils/fps.hpp"
-#include"../KalmanPredictor/KalmanPredictor.h"
+#include"../Predictor/KalmanPredictor.h"
 using namespace std;
 using namespace cv;
 using namespace apex_detector;
@@ -26,12 +26,12 @@ int main()
 	double bullet_speed_;
 	int detect_mode = 0;
     
-	Serial serial =Serial("/home/matrix/Desktop/auto_aim/Configs/serial/serial.xml");
-	PoseSolver poseSolver=PoseSolver("/home/wujyqaq/桌面/auto_aim/Configs/pose_solver/camera_params.xml",1);
+	Serial serial =Serial("/home/wujyqaq/Desktop/auto_aim/Configs/serial/serial.xml");
+	PoseSolver poseSolver=PoseSolver("/home/wujyqaq/Desktop/auto_aim/Configs/pose_solver/camera_params.xml",1);
 
 	poseSolver.setObjPoints(smallArmor,135,55);
 	poseSolver.setObjPoints(bigArmor,230,55);
-	mindvision::MVCamera* mv_capture_ = new mindvision::MVCamera(mindvision::CameraParam(0, mindvision::RESOLUTION_1280_X_1024, mindvision::EXPOSURE_2500));
+	mindvision::MVCamera* mv_capture_ = new mindvision::MVCamera(mindvision::CameraParam(0, mindvision::RESOLUTION_1280_X_1024, mindvision::EXPOSURE_5000));
 	
 	cv::Mat src_img_;
 	armor_detector::ArmorDetector armor_detector;
@@ -47,7 +47,7 @@ int main()
     fps::FPS      global_fps_;
     while (true)  
     {
-        //global_fps_.getTick();
+        global_fps_.getTick();
 		if (mv_capture_->isCameraOnline()) 
 		{
       	src_img_ = mv_capture_->image();
@@ -90,7 +90,7 @@ int main()
 
 		mv_capture_->releaseBuff();
 
-        //global_fps_.calculateFPSGlobal();
+        global_fps_.calculateFPSGlobal();
     }  
 	
 	return 0;

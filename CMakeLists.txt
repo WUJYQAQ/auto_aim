@@ -41,13 +41,13 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 link_libraries(${OpenCV_LIBS})
 
 # Add fmtlib directory
-add_subdirectory(fmt)
+add_subdirectory(3rdParty/fmt)
 # Add fmtlib include to EXTRA_INCLUDES
-list(APPEND EXTRA_INCLUDES fmt/include)
+list(APPEND EXTRA_INCLUDES 3rdParty/fmt/include)
 
 # Add mindvision-sdk directory and include path for target
 add_library(MVSDK SHARED IMPORTED)
-get_filename_component(MVSDK_PATH MVSDK REALPATH)
+get_filename_component(MVSDK_PATH 3rdParty/MVSDK REALPATH)
 # Check system architecture for mindvision-sdk library
 execute_process(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE)
 message(STATUS "Checking platform architecture for MVSDK: ${ARCHITECTURE}")
@@ -78,7 +78,7 @@ list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR})
 # 添加可执行项目源代码和头文件
 list(APPEND EXTRA_INCLUDES run_code)
 
-list(APPEND EXTRA_INCLUDES MVSDK)
+list(APPEND EXTRA_INCLUDES 3rdParty/MVSDK)
 
 # Add module as shared library to build target
 # 将各个库
@@ -92,9 +92,9 @@ list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/PoseSolver)
 add_library(pose_solver SHARED PoseSolver/PoseSolver.cpp)
 list(APPEND WV_EXTRA_LIBS pose_solver)
 
-list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/KalmanPredictor)
-add_library(kalman_predictor SHARED KalmanPredictor/KalmanPredictor.cpp)
-list(APPEND WV_EXTRA_LIBS kalman_predictor)
+list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/Predictor)
+add_library(predictor SHARED Predictor/KalmanPredictor.cpp)
+list(APPEND WV_EXTRA_LIBS predictor)
 
 list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/Serial)
 add_library(serial SHARED Serial/Serial.cpp)

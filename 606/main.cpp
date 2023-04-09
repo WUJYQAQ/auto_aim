@@ -27,7 +27,7 @@ int main()
 	int detect_mode = 0;
     
 	Serial serial =Serial("/home/matrix/Desktop/auto_aim/Configs/serial/serial.xml");
-	PoseSolver poseSolver=PoseSolver("/home/matrix/Desktop/auto_aim/Configs/pose_solver/camera_params.xml",1);
+	PoseSolver poseSolver=PoseSolver("/home/wujyqaq/桌面/auto_aim/Configs/pose_solver/camera_params.xml",1);
 
 	poseSolver.setObjPoints(smallArmor,135,55);
 	poseSolver.setObjPoints(bigArmor,230,55);
@@ -41,7 +41,7 @@ int main()
 	std::vector<apex_detector::ArmorObject> objects;
 
     // 初始化网络模型
-    const string network_path = "/home/matrix/Desktop/auto_aim/model/opt-0517-001.xml";
+    const string network_path = "/home/wujyqaq/Desktop/auto_aim/model/opt-0517-001.xml";
     apex_detector.initModel(network_path);
 
     fps::FPS      global_fps_;

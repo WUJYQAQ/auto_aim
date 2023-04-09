@@ -86,9 +86,9 @@ void PoseSolver::setObjPoints(ArmorType type, double width, double height)
 		break;
 
 	case bigArmor:
-	    bigObjPoints.push_back(Point3f(centerX, -centerY, 0));   //tl top left左上
+	    bigObjPoints.push_back(Point3f(-centerX, centerY, 0));   //tl top left左上
 		bigObjPoints.push_back(Point3f(-centerX, -centerY, 0));  //br below right左下
-		bigObjPoints.push_back(Point3f(-centerX, centerY, 0));   //bl below left右下
+		bigObjPoints.push_back(Point3f(centerX, -centerY, 0));   //bl below left右下
 		bigObjPoints.push_back(Point3f(centerX, centerY, 0));    //tr top right右上
 		break;
 	default: break;

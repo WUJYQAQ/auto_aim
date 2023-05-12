@@ -16,8 +16,16 @@ using namespace std;
 using namespace cv;
 using namespace InferenceEngine;
 
+enum ArmorState{
+    LOST = 0,       // 丢失目标
+    FIRST = 1,      // 第一次发现目标
+    SHOOT = 2,      // 持续识别目标
+    FINDING = 3     // 丢失目标但在寻找目标
+};
+
 namespace apex_detector
 {
+    
 // tips: 这里灯条四点坐标用数组和容器存储都是一样的内容，只是为了方便代码调用
 struct ArmorObject
 {
@@ -28,7 +36,7 @@ struct ArmorObject
     int area;                     // 矩形面积大小
     float prob;                   // 分类置信度
     std::vector<cv::Point2f> pts; // 灯条四点坐标（左上点起始逆时针）
-    int distinguish = 1;         // 装甲板类型 (0:小装甲板 1:大装甲板)
+    int distinguish = 0;         // 装甲板类型 (0:小装甲板 1:大装甲板)
 };
 
 
@@ -43,9 +51,11 @@ public:
     bool initModel(string path);
     int getArmorType();
 
+    int isFindTarget();
 
+    ArmorState state = ArmorState::LOST;
 private:
-
+    int isFindArmor=0;
     Core ie;
     CNNNetwork network;                // 网络
     ExecutableNetwork executable_network;       // 可执行网络

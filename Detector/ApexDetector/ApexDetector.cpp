@@ -308,8 +308,8 @@ ApexDetector::~ApexDetector()
 bool ApexDetector::initModel(string path)
 {
     ie.SetConfig({{CONFIG_KEY(CACHE_DIR), "../.cache"}});
-    ie.SetConfig({{CONFIG_KEY(GPU_THROUGHPUT_STREAMS),"GPU_THROUGHPUT_AUTO"}});
-    //ie.SetConfig({{CONFIG_KEY(GPU_THROUGHPUT_STREAMS),"1"}});
+    //ie.SetConfig({{CONFIG_KEY(CPU_THROUGHPUT_STREAMS),"CPU_THROUGHPUT_AUTO"}});
+    ie.SetConfig({{CONFIG_KEY(GPU_THROUGHPUT_STREAMS),"1"}});
     // Step 1. Read a model in OpenVINO Intermediate Representation (.xml and
     // .bin files) or ONNX (.onnx file) format
     network = ie.ReadNetwork(path);
@@ -428,8 +428,16 @@ bool ApexDetector::detect(Mat &src, std::vector<ArmorObject>& objects)
         (*object).area = (int)(calcTetragonArea((*object).apex));
     }
     if (objects.size() != 0)
+    {
+        isFindArmor=1;
         return true;
-    else return false;
+    }
+        
+    else 
+    {
+        isFindArmor=0;
+        return false;
+    }
 
 }
 
@@ -448,6 +456,7 @@ void ApexDetector::display(Mat &image2show, ArmorObject object) {
     circle(image2show, Point(object.apex[1].x, object.apex[1].y), 3, Scalar(0, 255, 0), 5);
     circle(image2show, Point(object.apex[2].x, object.apex[2].y), 3, Scalar(0, 0, 255), 5);
     circle(image2show, Point(object.apex[3].x, object.apex[3].y), 3, Scalar(255, 255, 0), 5);
+    circle(image2show, Point((object.apex[0].x+object.apex[2].x)/2, (object.apex[0].y+object.apex[2].y)/2), 5, Scalar(255, 255, 255), 5);
     
     // 绘制装甲板四点矩形
     for (int i = 0; i < 4; i++) {
@@ -474,3 +483,7 @@ int ApexDetector::getArmorType()
 	return armor_object.distinguish;
 }
 
+int ApexDetector::isFindTarget()
+{
+        return isFindArmor;
+}

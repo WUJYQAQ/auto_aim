@@ -100,6 +100,9 @@ list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/Serial)
 add_library(serial SHARED Serial/Serial.cpp)
 list(APPEND WV_EXTRA_LIBS serial)
 
+list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/KalmanFilter)
+add_library(kalman_filter SHARED KalmanFilter/KalmanFilter.cpp)
+list(APPEND WV_EXTRA_LIBS kalman_filter)
 
 list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/MVCamera)
 add_library(mindvision_camera SHARED MVCamera/MVCamera.cpp)

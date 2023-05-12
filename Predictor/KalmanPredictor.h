@@ -10,22 +10,22 @@
 
 namespace KalmanPredictor {
 
-class KalmanFilter 
+class Predictor 
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    KalmanFilter();
-
+    Predictor();
+    //初始化
     void Init(double dT, double alpha, double sigma_a2, double R0);
-
+    //
     void Reset(Eigen::Vector3d& x);
-
+    //设置状态
     void SetState(Eigen::Vector3d& x);
-
+    //状态更新
     void StateUpdate(double dT, bool flag);
-
+    //预测
     void PredictWithVelocity(double dT);
-
+    
     void MeasurementUpdate(double z, bool flag);
 
     Eigen::Vector3d GetState();

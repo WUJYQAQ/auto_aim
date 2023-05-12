@@ -100,8 +100,8 @@ void Serial::getSendData(const int _isFindTarget,
 void Serial::setSendBuffer(const uint8_t& CRC)
 {
     write_buff_[0]  = 0x53;
-    write_buff_[1]  = static_cast<unsigned char>(send_data.is_find_target);
-    write_buff_[2] =0;
+    write_buff_[1]  = 1;
+    write_buff_[2]  = static_cast<unsigned char>(send_data.is_find_target);
     write_buff_[3]  = static_cast<unsigned char>(send_data.yaw_symbol);
     write_buff_[4]  = returnLowBit(send_data.yaw_angle);
     write_buff_[5]  = returnHighBit(send_data.yaw_angle);

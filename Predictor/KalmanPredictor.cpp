@@ -2,12 +2,12 @@
 
 namespace KalmanPredictor {
 
-KalmanFilter::KalmanFilter()
+Predictor::Predictor()
 {
 
 }
 
-void KalmanFilter::Init(double dT, double alpha, double sigma_a2, double R0)
+void Predictor::Init(double dT, double alpha, double sigma_a2, double R0)
 {
     alpha_ = alpha;
     sigma_a2_= sigma_a2;
@@ -36,7 +36,7 @@ void KalmanFilter::Init(double dT, double alpha, double sigma_a2, double R0)
 
 }
 
-void KalmanFilter::Reset(Eigen::Vector3d& x)
+void Predictor::Reset(Eigen::Vector3d& x)
 {
     x_ = x;
     P_ = P_offset_;
@@ -44,12 +44,12 @@ void KalmanFilter::Reset(Eigen::Vector3d& x)
     is_tracking_ = true;
 }
 
-void KalmanFilter::SetState(Eigen::Vector3d& x)
+void Predictor::SetState(Eigen::Vector3d& x)
 {
   x_ = x;
 }
 
-void KalmanFilter::StateUpdate(double dT, bool flag)
+void Predictor::StateUpdate(double dT, bool flag)
 {
     if(flag) {
         F_ << 1,     dT,     (alpha_*dT + std::exp(-alpha_*dT) - 1) / (pow(alpha_, 2)),
@@ -94,7 +94,7 @@ void KalmanFilter::StateUpdate(double dT, bool flag)
     }
 }
 
-void KalmanFilter::PredictWithVelocity(double dT)
+void Predictor::PredictWithVelocity(double dT)
 {
   F_ << 1,     dT,     0.0,
         0,      1,     0.0,
@@ -115,7 +115,7 @@ void KalmanFilter::PredictWithVelocity(double dT)
   P_ = F_*P_*(F_.transpose()) + Q_;
 }
 
-void KalmanFilter::MeasurementUpdate(double z, bool flag)
+void Predictor::MeasurementUpdate(double z, bool flag)
 { 
   if(flag) {
     Eigen::Matrix3d I = Eigen::Matrix3d::Identity();
@@ -136,12 +136,12 @@ void KalmanFilter::MeasurementUpdate(double z, bool flag)
 
 }
 
-Eigen::Vector3d KalmanFilter::GetState()
+Eigen::Vector3d Predictor::GetState()
 {
     return x_;
 }
 
-Eigen::Vector3d KalmanFilter::GetPredictState(double dT)
+Eigen::Vector3d Predictor::GetPredictState(double dT)
 {
     Eigen::Matrix3d transform;
     transform << 1,     dT,     0.5*dT*dT,

@@ -110,17 +110,16 @@ void PoseSolver::getImgpPoints(std::vector<Point2f> image_points)
 
 void PoseSolver::solvePose(int armorType)
 {	
-	cout<<instantMatrix<<endl;
-	cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+	
 	switch (armorType)
 	{
 	case smallArmor:
 		solvePnP(smallObjPoints, imagePoints, instantMatrix, distortionCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE); 
-		cout<<"                       小装甲板"<<endl;
+		cout<<"=============小装甲板============"<<endl;
 		break;
 	case bigArmor:
 		solvePnP(bigObjPoints, imagePoints, instantMatrix, distortionCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE); 
-		cout<<"                       大装甲板"<<endl;
+		cout<<"=============大装甲板============"<<endl;
 		break;
 	default:
 		break;
@@ -132,8 +131,7 @@ void PoseSolver::solvePose(int armorType)
 	double x_pos = tvec.at<double>(0, 0);
 	double y_pos = tvec.at<double>(1, 0);
 	double z_pos = tvec.at<double>(2, 0);
-	cout<<"==================================\n"<<tvec<<endl;
-	cout<<"---------------------------------"<<x_pos<<endl;
+	cout<<"================平移向量================\n"<<tvec<<endl;
 
 	double tan_pitch = y_pos / sqrt(x_pos * x_pos + z_pos * z_pos);
 	double tan_yaw = x_pos / z_pos;
@@ -157,4 +155,33 @@ float PoseSolver::getPitchAngle()
 int PoseSolver::getDistance()
 {
 	return pnp_results.distance;
+}
+
+cv::Point3f PoseSolver::getCameraPose()
+{
+	camera_coord = cv::Point3f(tvec.at<double>(0, 0),tvec.at<double>(1, 0),tvec.at<double>(2, 0));
+	return camera_coord;
+}
+
+void PoseSolver::show_predict(cv::Mat image2show, cv::Mat predict_coord){
+
+    cv::Point2f pixel_coord;
+
+	pixel_coord=cv::Point2d(predict_coord.at<double>(0,0),predict_coord.at<double>(0,1));
+	
+	cv::circle(image2show, cv::Point2d(abs(pixel_coord.x), abs(pixel_coord.y)), 10, cv::Scalar(0, 255, 255), 5);
+
+
+ }
+
+
+
+cv::Mat PoseSolver::camera_to_pixel(cv::Point3f camera_coord){
+	cv::Mat camera_coord_mat;
+	camera_coord_mat = (cv::Mat_<double>(3, 1) << camera_coord.x,
+                                                         camera_coord.y,
+                                                         camera_coord.z);
+	cout<<"=================DEBUG=================="<<endl<<camera_coord_mat<<endl;
+
+	return instantMatrix * camera_coord_mat / camera_coord.z;
 }

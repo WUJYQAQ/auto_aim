@@ -169,6 +169,8 @@ void PoseSolver::show_predict(cv::Mat image2show, cv::Mat predict_coord){
 
 	pixel_coord=cv::Point2f(predict_coord.at<double>(0,0),predict_coord.at<double>(1,0));
 	
+	cout<<"=================pixel_coord=================="<<endl<<pixel_coord<<endl;
+
 	cv::circle(image2show, pixel_coord, 10, cv::Scalar(0, 255, 255), 5);
 
 

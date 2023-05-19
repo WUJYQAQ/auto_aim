@@ -98,6 +98,10 @@ public:
 
   int getArmorType(ArmorObject object);
 
+  float getDistance(cv::Point2f armor_center, cv::Point2f last_armor_center);
+
+  void getOptimalTarget(std::vector<ArmorObject> objects, ArmorObject &optimal_object);
+
 
 private:
   bool process_callback(
@@ -120,6 +124,8 @@ private:
 
   std::unique_ptr<ov::Core> ov_core_;
   std::unique_ptr<ov::CompiledModel> compiled_model_;
+
+  cv::Point2f last_armor_center;
 };
 }  // namespace rm_auto_aim
 

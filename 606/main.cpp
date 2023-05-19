@@ -24,8 +24,8 @@ int main()
 	rm_auto_aim::OpenVINODetector openvino_detector(network_path, "AUTO");
 	kalmanFilter kalman_filter;
 
-	// std::vector<apex_detector::ArmorObject> objects;
 	std::vector<rm_auto_aim::ArmorObject> objects;
+	ArmorObject optimal_target;
     
  
     openvino_detector.init();
@@ -53,36 +53,33 @@ int main()
 		
 	cv::cvtColor(src_img_, infer_img, cv::COLOR_BGR2RGB);
 
-	auto res = openvino_detector.push_input(infer_img, 0);
+
+    auto res = openvino_detector.push_input(infer_img, 0);
 	if (res.get()) {
 		if (state == LOST) {
-			for (auto armor_object : objects) {
-				poseSolver.getImgpPoints(armor_object.pts);
-				poseSolver.solvePose(openvino_detector.getArmorType(armor_object));
-				kalman_filter.initState(poseSolver.getCameraPose());
-				state = SHOOT;
-			}
+			//cout << "=============================" << objects[0].center_dist << endl;
+			openvino_detector.getOptimalTarget(objects, optimal_target);
+			poseSolver.getImgpPoints(optimal_target.pts);
+			poseSolver.solvePose(openvino_detector.getArmorType(optimal_target));
+			kalman_filter.initState(poseSolver.getCameraPose(), optimal_target.delta_centr);
+			state = SHOOT;
 		} else if (state == SHOOT) {
-			for (auto armor_object : objects) {
-				openvino_detector.display(src_img_, armor_object); // Visualize detection results
-				poseSolver.getImgpPoints(armor_object.pts);
-				poseSolver.solvePose(openvino_detector.getArmorType(armor_object));
-				kalman_filter.initState(last_coord, true);
-				kalman_filter.predictAsync(last_coord, kalman_filter, [&](cv::Point3f predict_coord) {
-        			poseSolver.show_predict(src_img_, poseSolver.camera_to_pixel(predict_coord));
-        			last_coord = predict_coord;
-    			});
-			}
+			//cout << "=============================" << objects[0].center_dist << endl;
+			openvino_detector.getOptimalTarget(objects, optimal_target);
+			openvino_detector.display(src_img_, optimal_target);
+			cout << "==========================================================" << optimal_target.center_dist << endl;
+			poseSolver.getImgpPoints(optimal_target.pts);
+			poseSolver.solvePose(openvino_detector.getArmorType(optimal_target));
+			cout << "===========YAW============" << endl << poseSolver.getYawAngle() << endl;
+			cout << "===========PITCH============" << endl << poseSolver.getPitchAngle() << endl;
+			cv::Point3f predict_coord = kalman_filter.predict(poseSolver.getCameraPose(), std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count());
+			poseSolver.show_predict(src_img_, poseSolver.camera_to_pixel(predict_coord));
+			last_coord = predict_coord;
 		}
 	} else {
 		state = LOST;
 	}
 
-
-			
-	
-		
-		
 		imshow("output", src_img_);
           
         cv::waitKey(1);    //延时30  

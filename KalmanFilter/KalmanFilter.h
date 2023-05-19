@@ -107,8 +107,7 @@ public:
             bs_coeff = 0.9;
     }
   
-    void predictAsync(cv::Point3f last_coord, kalmanFilter kalman_filter, std::function<void(cv::Point3f)> callback);
-
+    cv::Point3f predictAsync(cv::Point3f camera_coord, uint32_t timestamp);
     
 
 };

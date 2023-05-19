@@ -55,8 +55,11 @@ typedef struct
   ArmorColor color;
   ArmorNumber number;
   float prob;
+  float delta_centr;
+  float center_dist;
   std::vector<cv::Point2f> pts;
   cv::Rect box;
+  cv::Point2f center;  
   int distinguish = 0;         // 装甲板类型 (0:小装甲板 1:大装甲板)
 } ArmorObject;
 

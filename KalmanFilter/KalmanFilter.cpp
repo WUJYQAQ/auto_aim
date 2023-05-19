@@ -31,10 +31,10 @@ cv::Point3f kalmanFilter::predict(cv::Point3f camera_coord,  uint32_t timestamp)
     cv::Mat correct_state;
     float dt = (float)(timestamp - last_t) / 1000.0;
     last_t = timestamp;
-    cout << "SOLVE_WORLD: " << world_coord << endl;
-    cv::Mat measurement = (cv::Mat_<float>(measure_num, 1) << world_coord.x, 
-                                                              world_coord.y, 
-                                                              world_coord.z);
+
+    cv::Mat measurement = (cv::Mat_<float>(measure_num, 1) << camera_coord.x, 
+                                                              camera_coord.y, 
+                                                              camera_coord.z);
 
     KF->transitionMatrix.at<float>(0, 1) = dt;
     KF->transitionMatrix.at<float>(2, 3) = dt;
@@ -46,15 +46,15 @@ cv::Point3f kalmanFilter::predict(cv::Point3f camera_coord,  uint32_t timestamp)
     correct_coord = cv::Point3f(correct_state.at<float>(0, 0), correct_state.at<float>(2, 0), correct_state.at<float>(4, 0));
 
 
-    setBS_coeff(correct_coord);
+    //setBS_coeff(correct_coord);
 
-    pitch_time = compensate(correct_coord, dt);
-    cout << correct_state << endl;
-    cout << "Pitch: " << pitch_time.x << "Time: " << pitch_time.y << endl;
-    cout << "BS: " << bullet_speed << endl;
+    //pitch_time = compensate(correct_coord, dt);
+    // cout << correct_state << endl;
+    // cout << "Pitch: " << pitch_time.x << "Time: " << pitch_time.y << endl;
+    // cout << "BS: " << bullet_speed << endl;
 
 
-    cv::Point3f world_next = predictNextpoint(correct_state, 300 + 10 + delay_time);
+    cv::Point3f world_next = predictNextpoint(correct_state, 0.03 + dt + delay_time);
     return world_next;
 }
 
@@ -80,6 +80,8 @@ void kalmanFilter::initState(cv::Point3f coord, bool spin_flag)
 
 
     }
+    auto last_t = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count();
+
        
 }
 
@@ -128,8 +130,4 @@ double kalmanFilter::getflytime(double angle, cv::Point3f correct_spin, double T
 }
 
 
-void kalmanFilter::predictAsync(cv::Point3f last_coord, kalmanFilter kalman_filter, std::function<void(cv::Point3f)> callback) {
-    auto future = std::async(std::launch::async, &kalmanFilter::predict, &kalman_filter, last_coord, 10);
-    auto result = future.get();
-    callback(result);
-}
+

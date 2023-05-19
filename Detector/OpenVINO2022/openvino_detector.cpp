@@ -429,5 +429,26 @@ int OpenVINODetector::getArmorType(ArmorObject object)
 	return object.distinguish;
 }
 
+float OpenVINODetector::getDistance(cv::Point2f armor_center,cv::Point2f last_armor_center){
+    float distance=sqrt(pow((armor_center.x-last_armor_center.x),2)+pow((armor_center.y-last_armor_center.y),2));
+    return distance;
+}
+
+
+void OpenVINODetector::getOptimalTarget(std::vector<ArmorObject> objects,ArmorObject &optimal_object){
+    float MIN_CENTER_DIST=999999;
+    int last_armor_id;
+    for (auto armor_object : objects)
+        {
+            if(armor_object.center_dist < MIN_CENTER_DIST)
+            {
+                MIN_CENTER_DIST=armor_object.center_dist;
+                optimal_object=armor_object;
+                optimal_object.delta_centr=getDistance(optimal_object.center,last_armor_center);
+            }
+
+        }
+    last_armor_center=optimal_object.center;
+}
 
 }  // namespace rm_auto_aim

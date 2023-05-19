@@ -16,16 +16,18 @@ using namespace std;
 using namespace cv;
 using namespace InferenceEngine;
 
+
+
+namespace apex_detector
+{
+
+
 enum ArmorState{
     LOST = 0,       // 丢失目标
     FIRST = 1,      // 第一次发现目标
     SHOOT = 2,      // 持续识别目标
     FINDING = 3     // 丢失目标但在寻找目标
 };
-
-namespace apex_detector
-{
-    
 // tips: 这里灯条四点坐标用数组和容器存储都是一样的内容，只是为了方便代码调用
 struct ArmorObject
 {
@@ -53,7 +55,6 @@ public:
 
     int isFindTarget();
 
-    ArmorState state = ArmorState::LOST;
 private:
     int isFindArmor=0;
     Core ie;

@@ -1,0 +1,6 @@
+# Model 
+model_path: '/home/hezhexi2002/WorkSpace/auto_aim/model/opt-1208-001.onnx'
+device_type: 'AUTO'
+confidence_threshold: 0.25
+top_k: 128
+nms_threshold: 0.3

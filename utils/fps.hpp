@@ -9,7 +9,7 @@
 namespace fps {
 
 auto idntifier = fmt::format(fg(fmt::color::green) | fmt::emphasis::bold, "fps");
-  static double last_time;
+static double last_time;
 class FPS 
 {
  public:

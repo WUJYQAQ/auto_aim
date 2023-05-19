@@ -18,7 +18,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 # Use standard c++20
 # C++20
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add DEBUG/RELEASE marco to define if debug/release configured
@@ -30,12 +30,10 @@ add_compile_options("$<$<CONFIG:RELEASE>:-DRELEASE>")
 # 默认不进行test？
 set(BUILD_TEST False)
 
-SET(CMAKE_PREFIX_PATH /opt/intel/openvino_2021/deployment_tools/inference_engine/share)
-FIND_PACKAGE(InferenceEngine REQUIRED)
 
 # 查找opencv包
-SET(OpenCV_DIR "/opt/intel/openvino_2021/opencv/cmake")
-FIND_PACKAGE(OpenCV 4 REQUIRED)
+find_package(OpenCV 4 REQUIRED)
+find_package(OpenVINO REQUIRED COMPONENTS Runtime ONNX)
 FIND_PACKAGE(Eigen3 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 link_libraries(${OpenCV_LIBS})
@@ -84,8 +82,8 @@ list(APPEND EXTRA_INCLUDES 3rdParty/MVSDK)
 # 将各个库
 list(APPEND EXTRA_INCLUDES auto_aim)
 
-list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/Detector/ArmorDetector ${PROJECT_SOURCE_DIR}/auto_aim/Detector/ApexDetector)
-add_library(detector SHARED Detector/ArmorDetector/ArmorDetector.cpp Detector/ApexDetector/ApexDetector.cpp)
+list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/Detector/ArmorDetector ${PROJECT_SOURCE_DIR}/auto_aim/Detector/OpenVINO2022)
+add_library(detector SHARED Detector/ArmorDetector/ArmorDetector.cpp Detector/OpenVINO2022/openvino_detector.cpp)
 list(APPEND WV_EXTRA_LIBS detector)
 
 list(APPEND EXTRA_INCLUDES ${PROJECT_SOURCE_DIR}/auto_aim/PoseSolver)
@@ -135,7 +133,9 @@ target_link_libraries(606Vision
     ${OpenCV_LIBS}
     ${EXTRA_LIBS}
     ${Eigen3_LIBRARIES}
-    ${InferenceEngine_LIBRARIES}
+    ${OpenCV_LIBS}
+    openvino::frontend::onnx
+    openvino::runtime
     PRIVATE
     ${WV_EXTRA_LIBS}
 )

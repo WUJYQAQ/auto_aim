@@ -27,13 +27,14 @@ kalmanFilter::kalmanFilter()
 
 cv::Point3f kalmanFilter::predict(cv::Point3f camera_coord,  uint32_t timestamp)
 {
+  
     cv::Mat correct_state;
     float dt = (float)(timestamp - last_t) / 1000.0;
     last_t = timestamp;
-    cout << "SOLVE_WORLD: " << camera_coord << endl;
-    cv::Mat measurement = (cv::Mat_<float>(measure_num, 1) << camera_coord.x, 
-                                                              camera_coord.y, 
-                                                              camera_coord.z);
+    cout << "SOLVE_WORLD: " << world_coord << endl;
+    cv::Mat measurement = (cv::Mat_<float>(measure_num, 1) << world_coord.x, 
+                                                              world_coord.y, 
+                                                              world_coord.z);
 
     KF->transitionMatrix.at<float>(0, 1) = dt;
     KF->transitionMatrix.at<float>(2, 3) = dt;
@@ -44,24 +45,91 @@ cv::Point3f kalmanFilter::predict(cv::Point3f camera_coord,  uint32_t timestamp)
     correct_state = KF->correct(measurement);
     correct_coord = cv::Point3f(correct_state.at<float>(0, 0), correct_state.at<float>(2, 0), correct_state.at<float>(4, 0));
 
+
+    setBS_coeff(correct_coord);
+
+    pitch_time = compensate(correct_coord, dt);
     cout << correct_state << endl;
+    cout << "Pitch: " << pitch_time.x << "Time: " << pitch_time.y << endl;
+    cout << "BS: " << bullet_speed << endl;
 
-    cv::Point3f world_next = predictNextpoint(correct_state, 30 + dt + delay_time);
+
+    cv::Point3f world_next = predictNextpoint(correct_state, 300 + 10 + delay_time);
     return world_next;
-    //return camera_coord;
 }
 
 
-void kalmanFilter::initState(cv::Point3f coord)
+void kalmanFilter::initState(cv::Point3f coord, bool spin_flag)
 {
+    if(spin_flag){
+        KF->statePost = (cv::Mat_<float>(state_num, 1) <<  coord.x,
+                                                                KF->statePost.at<float>(1, 0),
+                                                                coord.y,
+                                                                KF->statePost.at<float>(3, 0),
+                                                                coord.z,
+                                                                KF->statePost.at<float>(5, 0));
+        }
 
-        KF->statePost = (cv::Mat_<float>(state_num, 1) << world_coord.x,
+    else{
+        KF->statePost = (cv::Mat_<float>(state_num, 1) << coord.x,
                                                         0,
-                                                        world_coord.y,
+                                                        coord.y,
                                                         0,
-                                                        world_coord.z,
+                                                        coord.z,
                                                         0);
-    
+
+
+    }
+       
+}
+
+/**
+ *  @brief  重力补偿；
+ *  @param  bullet_speed    弹速
+ *  @param  correct_spin    KF得出的坐标状态值
+ *  @param  dt  图片处理时间
+ * @return  pitch, time
+ */
+cv::Point2d kalmanFilter::compensate(cv::Point3f correct_spin, double dt)
+{
+	correct_spin -= gun2cam_offset;
+	double dy, angle, y_actual;
+	double t_actual = 0.0;
+	double y_temp = correct_spin.z / 1000.0;
+	double y = y_temp;
+	double x = sqrt(correct_spin.x * correct_spin.x + correct_spin.y * correct_spin.y) / 1000.0;
+
+	for (int i = 0; i < iter_num; i++)
+	{
+		angle = atan2(y_temp, x);
+		t_actual = getflytime(angle, correct_spin, t_actual, dt);
+		y_actual = double(bs_coeff * bullet_speed * sin(angle) * t_actual - g * t_actual * t_actual / 2.0);
+		dy = y - y_actual;
+		y_temp += dy;
+		if (abs(dy) < 0.001)
+			break;
+	}
+	return cv::Point2d((angle) / M_PI * 180.0, t_actual);
+}
+
+/**
+ *  @brief  计算子弹飞行时间
+ *  @param  angle   pitch角
+ *  @param  correct_state   KF得出的状态值
+ *  @param  T   n-1状态中子弹飞行时间
+ *  @param  dt  图片处理延迟
+ *  @return 返回子弹在绝对坐标系中飞行的时间；
+ */
+double kalmanFilter::getflytime(double angle, cv::Point3f correct_spin, double T, double dt)
+{
+    double x = sqrt(correct_spin.x * correct_spin.x + correct_spin.y * correct_spin.y) / 1000.0;
+
+    return (exp(k * x) - 1.0) / (k * bs_coeff * bullet_speed * cos(angle)); //- dt - delay_time;
 }
 
 
+void kalmanFilter::predictAsync(cv::Point3f last_coord, kalmanFilter kalman_filter, std::function<void(cv::Point3f)> callback) {
+    auto future = std::async(std::launch::async, &kalmanFilter::predict, &kalman_filter, last_coord, 10);
+    auto result = future.get();
+    callback(result);
+}

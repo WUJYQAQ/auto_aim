@@ -167,9 +167,9 @@ void PoseSolver::show_predict(cv::Mat image2show, cv::Mat predict_coord){
 
     cv::Point2f pixel_coord;
 
-	pixel_coord=cv::Point2d(predict_coord.at<double>(0,0),predict_coord.at<double>(0,1));
+	pixel_coord=cv::Point2f(predict_coord.at<double>(0,0),predict_coord.at<double>(1,0));
 	
-	cv::circle(image2show, cv::Point2d(abs(pixel_coord.x), abs(pixel_coord.y)), 10, cv::Scalar(0, 255, 255), 5);
+	cv::circle(image2show, pixel_coord, 10, cv::Scalar(0, 255, 255), 5);
 
 
  }
@@ -178,10 +178,13 @@ void PoseSolver::show_predict(cv::Mat image2show, cv::Mat predict_coord){
 
 cv::Mat PoseSolver::camera_to_pixel(cv::Point3f camera_coord){
 	cv::Mat camera_coord_mat;
+	
 	camera_coord_mat = (cv::Mat_<double>(3, 1) << camera_coord.x,
                                                          camera_coord.y,
-                                                         camera_coord.z);
+                                                         camera_coord.z);													 
 	cout<<"=================DEBUG=================="<<endl<<camera_coord_mat<<endl;
 
 	return instantMatrix * camera_coord_mat / camera_coord.z;
+
 }
+

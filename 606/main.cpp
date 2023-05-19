@@ -57,14 +57,12 @@ int main()
     auto res = openvino_detector.push_input(infer_img, 0);
 	if (res.get()) {
 		if (state == LOST) {
-			//cout << "=============================" << objects[0].center_dist << endl;
 			openvino_detector.getOptimalTarget(objects, optimal_target);
 			poseSolver.getImgpPoints(optimal_target.pts);
 			poseSolver.solvePose(openvino_detector.getArmorType(optimal_target));
 			kalman_filter.initState(poseSolver.getCameraPose(), optimal_target.delta_centr);
 			state = SHOOT;
 		} else if (state == SHOOT) {
-			//cout << "=============================" << objects[0].center_dist << endl;
 			openvino_detector.getOptimalTarget(objects, optimal_target);
 			openvino_detector.display(src_img_, optimal_target);
 			cout << "==========================================================" << optimal_target.center_dist << endl;

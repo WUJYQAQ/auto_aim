@@ -1,4 +1,4 @@
-#include "KalmanFilter.h"
+#include "PredictorKalman.hpp"
 
 kalmanFilter::kalmanFilter()
 {
@@ -25,16 +25,16 @@ kalmanFilter::kalmanFilter()
 }
 
 
-cv::Point3f kalmanFilter::predict(cv::Point3f camera_coord,  uint32_t timestamp)
+cv::Point3f kalmanFilter::predict(cv::Point3f world_coord,  uint32_t timestamp)
 {
   
     cv::Mat correct_state;
     float dt = (float)(timestamp - last_t) / 1000.0;
     last_t = timestamp;
 
-    cv::Mat measurement = (cv::Mat_<float>(measure_num, 1) << camera_coord.x, 
-                                                              camera_coord.y, 
-                                                              camera_coord.z);
+    cv::Mat measurement = (cv::Mat_<float>(measure_num, 1) << world_coord.x, 
+                                                              world_coord.y, 
+                                                              world_coord.z);
 
     KF->transitionMatrix.at<float>(0, 1) = dt;
     KF->transitionMatrix.at<float>(2, 3) = dt;
@@ -46,15 +46,15 @@ cv::Point3f kalmanFilter::predict(cv::Point3f camera_coord,  uint32_t timestamp)
     correct_coord = cv::Point3f(correct_state.at<float>(0, 0), correct_state.at<float>(2, 0), correct_state.at<float>(4, 0));
 
 
-    //setBS_coeff(correct_coord);
+    setBS_coeff(correct_coord);
 
-    //pitch_time = compensate(correct_coord, dt);
-    // cout << correct_state << endl;
-    // cout << "Pitch: " << pitch_time.x << "Time: " << pitch_time.y << endl;
-    // cout << "BS: " << bullet_speed << endl;
+    pitch_time = compensate(correct_coord, dt);
+    cout << correct_state << endl;
+    cout << "Pitch: " << pitch_time.x << "Time: " << pitch_time.y << endl;
+    cout << "BS: " << bullet_speed << endl;
 
 
-    cv::Point3f world_next = predictNextpoint(correct_state, 0.03 + dt + delay_time);
+    cv::Point3f world_next = predictNextpoint(correct_state, pitch_time.y + dt + delay_time);
     return world_next;
 }
 

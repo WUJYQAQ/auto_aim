@@ -21,13 +21,11 @@ class FPS
 
   ~FPS() = default;
 
-void calculateFPS();
+  void calculateFPS();
 
-void calculateFPSGlobal();
+  void calculateFPSGlobal();
 
-
-
-  void          getTick();
+  void  getTick();
 
   static double lastTime();
 
@@ -52,7 +50,7 @@ void calculateFPSGlobal();
   double        time;     //  记录时间段
   double        fps;      //  帧率
   double        max;      //  最大帧率
-  double        min;      //  最小帧率
+  double        min;      //  最小帧率   
   double        average;  //  平均帧率（去除前10帧）
   double        total;    //  总帧率
 

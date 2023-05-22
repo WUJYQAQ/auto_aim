@@ -3,7 +3,7 @@
 #include "../MVCamera/MVCamera.hpp"
 #include "Serial/Serial.hpp"
 #include "utils/fps.hpp"
-#include "../KalmanFilter/KalmanFilter.h"
+#include "../Predictor/PredictorKalman.hpp"
 using namespace cv;
 using namespace rm_auto_aim;
 int main()
@@ -21,6 +21,7 @@ int main()
 	
 	cv::Mat src_img_, infer_img;
 	cv::Point3f last_coord;
+
 	rm_auto_aim::OpenVINODetector openvino_detector(network_path, "AUTO");
 	kalmanFilter kalman_filter;
 
@@ -29,7 +30,6 @@ int main()
     
  
     openvino_detector.init();
-    
 	openvino_detector.set_callback(
     [& objects](const std::vector<rm_auto_aim::ArmorObject> & objs, int64_t timestamp,
     const cv::Mat & src_img) {
@@ -40,7 +40,7 @@ int main()
     ArmorState state = ArmorState::LOST;
 
     
-    fps::FPS      global_fps_;
+    fps::FPS  global_fps_;
     while (true)  
     {
 		
@@ -65,7 +65,6 @@ int main()
 		} else if (state == SHOOT) {
 			openvino_detector.getOptimalTarget(objects, optimal_target);
 			openvino_detector.display(src_img_, optimal_target);
-			cout << "==========================================================" << optimal_target.center_dist << endl;
 			poseSolver.getImgpPoints(optimal_target.pts);
 			poseSolver.solvePose(openvino_detector.getArmorType(optimal_target));
 			cout << "===========YAW============" << endl << poseSolver.getYawAngle() << endl;

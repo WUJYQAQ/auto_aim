@@ -57,18 +57,16 @@ int main()
     auto res = openvino_detector.push_input(infer_img, 0);
 	if (res.get()) {
 		if (state == LOST) {
-			openvino_detector.getOptimalTarget(objects, optimal_target);
+			openvino_detector.getOptimalTarget(objects, optimal_target, ArmorColor::BLUE);
 			poseSolver.getImgpPoints(optimal_target.pts);
 			poseSolver.solvePose(openvino_detector.getArmorType(optimal_target));
 			kalman_filter.initState(poseSolver.getCameraPose(), optimal_target.delta_centr);
 			state = SHOOT;
 		} else if (state == SHOOT) {
-			openvino_detector.getOptimalTarget(objects, optimal_target);
+			openvino_detector.getOptimalTarget(objects, optimal_target, ArmorColor::BLUE);
 			openvino_detector.display(src_img_, optimal_target);
 			poseSolver.getImgpPoints(optimal_target.pts);
 			poseSolver.solvePose(openvino_detector.getArmorType(optimal_target));
-			cout << "===========YAW============" << endl << poseSolver.getYawAngle() << endl;
-			cout << "===========PITCH============" << endl << poseSolver.getPitchAngle() << endl;
 			cv::Point3f predict_coord = kalman_filter.predict(poseSolver.getCameraPose(), std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count());
 			poseSolver.show_predict(src_img_, poseSolver.camera_to_pixel(predict_coord));
 			last_coord = predict_coord;

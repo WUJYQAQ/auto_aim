@@ -190,3 +190,30 @@ cv::Mat PoseSolver::camera_to_pixel(cv::Point3f camera_coord){
 
 }
 
+/**      Z
+ *       |   X
+ *       |  /   
+ *       | /
+ * Y_____|/
+ *      
+ * IMU 的世界坐标系
+ */
+cv::Point3f PoseSolver::camera2world(Eigen::Quaternionf q1, cv::Point3f point, cv::Point3f trans_offset)
+{
+    point += trans_offset;
+    Eigen::Quaternionf p(0, point.z, -point.x, -point.y);
+
+    Eigen::Quaternionf result = q1 * p *q1.inverse();
+    return cv::Point3f(result.x(), result.y(), result.z());
+}
+
+cv::Point3f PoseSolver::world2camera(Eigen::Quaternionf q1, cv::Point3f point, cv::Point3f trans_offset)
+{
+    Eigen::Quaternionf p(0, point.x, point.y, point.z);
+
+    Eigen::Quaternionf result = q1.inverse() * p * q1;
+    return cv::Point3f(-result.y(), -result.z(), result.x()) - trans_offset;
+}
+
+
+

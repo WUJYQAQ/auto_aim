@@ -2,6 +2,8 @@
 #define POSE_HPP
 #include "opencv2/core/core.hpp"
 #include <opencv2/opencv.hpp>
+#include <Eigen/Core>
+#include <Eigen/Dense>
 #include<iostream>
 
 
@@ -67,11 +69,22 @@ public:
 
 	cv::Point3f getCameraPose();
 
-    void show_predict(cv::Mat image2show, cv::Mat predict_coord);
+    void showPredict(cv::Mat image2show, cv::Mat predict_coord);
 
-	cv::Mat camera_to_pixel(cv::Point3f camera_coord);
+	cv::Mat camera2pixel(cv::Point3f camera_coord);
+
+	cv::Point3f camera2earth(Eigen::Quaternionf q1, cv::Point3f camera_coord);
+	
+	cv::Point3f earth2camera(Eigen::Quaternionf q1, cv::Point3f earth_coord);
+
+	cv::Mat earth2pixel(Eigen::Quaternionf q1, cv::Point3f earth_coord);
+
 	
 private:
+
+
+	cv::Point3f camera2imu_offest;
+	
 	cv::Point3f camera_coord;
 
 	PnP_Results pnp_results;

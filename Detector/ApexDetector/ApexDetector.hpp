@@ -55,6 +55,7 @@ public:
 
     int isFindTarget();
 
+    ArmorState state=LOST;
 private:
     int isFindArmor=0;
     Core ie;
@@ -64,7 +65,7 @@ private:
     MemoryBlob::CPtr moutput;
     string input_name;
     string output_name;
-
+    //ArmorState state;
     ArmorObject armor_object;
 
     Eigen::Matrix<float,3,3> transfrom_matrix;

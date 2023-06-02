@@ -25,34 +25,6 @@ private:
 
     double bs_coeff = 0.9; // 初始弹速系数
 
-    Eigen::Matrix3d F;                  // 相机内参矩阵EIGEN-Matrix
-    Eigen::Matrix3d R_CI;               // 陀螺仪坐标系到相机坐标系旋转矩阵EIGEN-Matrix
-
-    
-    // 相机坐标系内坐标--->世界坐标系内坐标
-    inline Eigen::Vector3d pc_to_pw(const Eigen::Vector3d &pc, const Eigen::Matrix3d &R_IW) {
-        auto R_WC = (R_CI * R_IW).transpose();
-        return R_WC * pc;
-    }
-
-    // 世界坐标系内坐标--->相机坐标系内坐标
-    inline Eigen::Vector3d pw_to_pc(const Eigen::Vector3d &pw, const Eigen::Matrix3d &R_IW) {
-        auto R_CW = R_CI * R_IW;
-        return R_CW * pw;
-    }
-
-    // 相机坐标系内坐标--->图像坐标系内像素坐标
-    inline Eigen::Vector3d pc_to_pu(const Eigen::Vector3d &pc) {
-        return F * pc / pc(2, 0);
-    }
-
-        // 将世界坐标系内一点，投影到图像中，并绘制该点
-    inline void re_project_point(cv::Mat &image, const Eigen::Vector3d &pw,
-                                 const Eigen::Matrix3d &R_IW, const cv::Scalar &color) {
-        Eigen::Vector3d pc = pw_to_pc(pw, R_IW);
-        Eigen::Vector3d pu = pc_to_pu(pc);
-        cv::circle(image, {int(pu(0, 0)), int(pu(1, 0))}, 3, color, 2);
-    }
     
 public:
 	cv::Point3f cam2gyro_offset; // 陀螺仪到相机的平移偏移量
@@ -83,7 +55,7 @@ public:
      *  @brief  初始化状态值
      *  @param  camera_coord   相机坐标系下目标的坐标
      */
-    void initState(cv::Point3f coord, bool spin_flag = false);
+    void initState(cv::Point3f coord, bool isTracking = false);
 
 
     /**

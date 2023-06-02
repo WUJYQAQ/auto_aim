@@ -1,6 +1,4 @@
 ﻿#include "PoseSolver.hpp"
-#include <opencv2/opencv.hpp>
-#include<iostream>
 
 using namespace cv;
 using namespace std;
@@ -163,7 +161,8 @@ cv::Point3f PoseSolver::getCameraPose()
 	return camera_coord;
 }
 
-void PoseSolver::show_predict(cv::Mat image2show, cv::Mat predict_coord){
+void PoseSolver::showPredict(cv::Mat image2show, cv::Mat predict_coord)
+{
 
     cv::Point2f pixel_coord;
 
@@ -178,15 +177,50 @@ void PoseSolver::show_predict(cv::Mat image2show, cv::Mat predict_coord){
 
 
 
-cv::Mat PoseSolver::camera_to_pixel(cv::Point3f camera_coord){
+cv::Mat PoseSolver::camera2pixel(cv::Point3f camera_coord)
+{
 	cv::Mat camera_coord_mat;
 	
 	camera_coord_mat = (cv::Mat_<double>(3, 1) << camera_coord.x,
-                                                         camera_coord.y,
-                                                         camera_coord.z);													 
-	cout<<"=================DEBUG=================="<<endl<<camera_coord_mat<<endl;
+                                                  camera_coord.y,
+                                                  camera_coord.z);													 
 
 	return instantMatrix * camera_coord_mat / camera_coord.z;
 
 }
+
+cv::Point3f PoseSolver::camera2earth(Eigen::Quaternionf q1, cv::Point3f camera_coord)
+{
+	camera_coord += camera2imu_offest;
+    Eigen::Quaternionf p(0, camera_coord.z, -camera_coord.x, -camera_coord.y);
+
+    Eigen::Quaternionf result = q1 * p *q1.inverse();
+    return cv::Point3f(result.x(), result.y(), result.z());
+}
+
+cv::Point3f PoseSolver::earth2camera(Eigen::Quaternionf q1, cv::Point3f earth_coord)
+{
+    Eigen::Quaternionf p(0, earth_coord.x, earth_coord.y, earth_coord.z);
+
+    Eigen::Quaternionf result = q1.inverse() * p * q1;
+    return cv::Point3f(-result.y(), -result.z(), result.x()) - camera2imu_offest;
+}
+
+cv::Mat PoseSolver::earth2pixel(Eigen::Quaternionf q1, cv::Point3f earth_coord)
+{
+	cv::Mat camera_coord_mat;
+	
+	Eigen::Quaternionf p(0, earth_coord.x, earth_coord.y, earth_coord.z);
+
+    Eigen::Quaternionf camera_coord_temp = q1.inverse() * p * q1;
+
+	camera_coord_mat = (cv::Mat_<double>(3, 1) << camera_coord_temp.x(),
+                                                  camera_coord_temp.y(),
+                                                  camera_coord_temp.z());
+
+	return instantMatrix * camera_coord_mat / camera_coord_temp.z();
+
+}
+
+
 

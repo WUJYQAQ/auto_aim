@@ -59,9 +59,10 @@ cv::Point3f kalmanFilter::predict(cv::Point3f world_coord,  uint32_t timestamp)
 }
 
 
-void kalmanFilter::initState(cv::Point3f coord, bool spin_flag)
+void kalmanFilter::initState(cv::Point3f coord, bool isTracking)
 {
-    if(spin_flag){
+    
+    if(isTracking){
         KF->statePost = (cv::Mat_<float>(state_num, 1) <<  coord.x,
                                                                 KF->statePost.at<float>(1, 0),
                                                                 coord.y,

@@ -6,6 +6,9 @@
 #include <termios.h>
 #include <unistd.h>
 
+#include <Eigen/Core>
+#include <Eigen/Dense>
+
 #include <fmt/core.h>
 #include <fmt/color.h>
 
@@ -21,7 +24,7 @@ enum BufferLength
 
     //接收信息数据长度
     // The recieve length of the array obtained after decoding
-    //RECEIVE_BUFF_LENGTH   = 22,
+    RECEIVE_BUFF_LENGTH   = 22,
     
     //CRC校验数据长度
     // The send length of the array for CRC auth code code calculating
@@ -29,7 +32,7 @@ enum BufferLength
 };
 
 // 串口参数
-struct Serial_Config 
+struct SerialConfig 
 {
   std::string preferred_device        = "/dev/ttyUSB0";
   int         set_baudrate            = 0;
@@ -39,7 +42,7 @@ struct Serial_Config
 
 // 串口发送信息
 // Serial port message sending structure
-struct Send_Data
+struct SendData
 {
   int is_find_target;
 
@@ -47,9 +50,9 @@ struct Send_Data
   int pitch_symbol;
   int distance;
 
-  float yaw_angle;
-  float pitch_angle;
-  Send_Data()
+  int yaw_angle;
+  int pitch_angle;
+  SendData()
   {
     yaw_symbol=0;
     pitch_symbol=0;
@@ -58,6 +61,25 @@ struct Send_Data
     yaw_angle=0.f;
     pitch_angle=0.f;
   }
+};
+
+/* Receiving protocol:
+ *  0:      'S'
+ *  1:      color
+ *  2:      mode
+ *  3:      bullet_speed
+ *  4~7:    q0 (union)
+ *  8~11:   q1 (union)
+ *  12~15:  q2 (union)
+ *  16~19:  q3 (union)
+ *  20:     'E'
+ */
+struct ReceiveData
+{
+  int   my_color;
+  int   detect_mode;
+  int   bullet_speed;
+  Eigen::Quaternionf q;
 };
 
 union Fp32
@@ -90,7 +112,15 @@ public:
 
     void setSendBuffer(const uint8_t& CRC);
 
+    void setReceiveBuffer();
+
+    void receiveData();
+
+    void getReceiveData(ReceiveData &receive_data);
+
     void setCrcBuffer();
+
+    bool isEmpty();
 
     inline uint8_t checksumCRC(unsigned char* buff, uint16_t length);
 
@@ -133,62 +163,35 @@ public:
     return exchangebit_;
   }
 
-  inline uint16_t float_cov_uint16(float value)
-{
-
-    const Fp32 f32infty = { 255U << 23 };
-    const Fp32 f16infty = { 31U << 23 };
-    const Fp32 magic = { 15U << 23 };
-    const uint32_t sign_mask = 0x80000000U;
-    const uint32_t round_mask = ~0xFFFU;
-
-    Fp32 in;
-    uint16_t out;
-
-    in.f = value;
-
-    uint32_t sign = in.u & sign_mask;
-    in.u ^= sign;
-
-    if (in.u >= f32infty.u) /* Inf or NaN (all exponent bits set) */
-    {
-        /* NaN->sNaN and Inf->Inf */
-        out = (in.u > f32infty.u) ? 0x7FFFU : 0x7C00U;
-    }
-    else /* (De)normalized number or zero */
-    {
-        in.u &= round_mask;
-        in.f *= magic.f;
-        in.u -= round_mask;
-        if (in.u > f16infty.u)
-        {
-            in.u = f16infty.u; /* Clamp to signed infinity if overflowed */
-        }
-
-        out = uint16_t(in.u >> 13); /* Take the bits! */
-    }
-
-    out = uint16_t(out | (sign >> 16));
-
-    return out;
-}
-
-
 private:
 int           fd;
+int           transform_arr[4];
 unsigned char exchangebyte_;
-unsigned char exchangebit_;
-int16_t yaw_reduction_;
-int16_t pitch_reduction_;
-int16_t depth_reduction_;
-Serial_Config serial_config_;
 
+int16_t yaw_reduction;
+int16_t pitch_reduction;
+int16_t depth_reduction;
+
+int16_t exchangebit_;
+
+int16_t q0;
+int16_t q1;
+int16_t q2;
+int16_t q3;
+
+SerialConfig serial_config;
+
+ssize_t read_message_;
 ssize_t write_message_;
 
-Send_Data send_data;
+SendData send_data;
+ReceiveData receive_data;
+ReceiveData last_receive_data; 
 
-unsigned char write_buff_[SEND_BUFF_LENGTH];
-unsigned char crc_buff_[CRC_BUFF_LENGTH];
+unsigned char write_buff[SEND_BUFF_LENGTH];
+unsigned char receive_buff[RECEIVE_BUFF_LENGTH];
+unsigned char receive_buff_temp[RECEIVE_BUFF_LENGTH * 2];
+unsigned char crc_buff[CRC_BUFF_LENGTH];
 
 };
 

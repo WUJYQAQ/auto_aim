@@ -189,15 +189,31 @@ cv::Mat PoseSolver::camera2pixel(cv::Point3f camera_coord)
 
 }
 
+<<<<<<< HEAD
 cv::Point3f PoseSolver::camera2earth(Eigen::Quaternionf q1, cv::Point3f camera_coord)
 {
 	camera_coord += camera2imu_offest;
     Eigen::Quaternionf p(0, camera_coord.z, -camera_coord.x, -camera_coord.y);
+=======
+/**      Z
+ *       |   X
+ *       |  /   
+ *       | /
+ * Y_____|/
+ *      
+ * IMU 的世界坐标系
+ */
+cv::Point3f PoseSolver::camera2world(Eigen::Quaternionf q1, cv::Point3f point, cv::Point3f trans_offset)
+{
+    point += trans_offset;
+    Eigen::Quaternionf p(0, point.z, -point.x, -point.y);
+>>>>>>> 9e882074549752b26dcbf28df87804cf7b599ca6
 
     Eigen::Quaternionf result = q1 * p *q1.inverse();
     return cv::Point3f(result.x(), result.y(), result.z());
 }
 
+<<<<<<< HEAD
 cv::Point3f PoseSolver::earth2camera(Eigen::Quaternionf q1, cv::Point3f earth_coord)
 {
     Eigen::Quaternionf p(0, earth_coord.x, earth_coord.y, earth_coord.z);
@@ -220,6 +236,14 @@ cv::Mat PoseSolver::earth2pixel(Eigen::Quaternionf q1, cv::Point3f earth_coord)
 
 	return instantMatrix * camera_coord_mat / camera_coord_temp.z();
 
+=======
+cv::Point3f PoseSolver::world2camera(Eigen::Quaternionf q1, cv::Point3f point, cv::Point3f trans_offset)
+{
+    Eigen::Quaternionf p(0, point.x, point.y, point.z);
+
+    Eigen::Quaternionf result = q1.inverse() * p * q1;
+    return cv::Point3f(-result.y(), -result.z(), result.x()) - trans_offset;
+>>>>>>> 9e882074549752b26dcbf28df87804cf7b599ca6
 }
 
 

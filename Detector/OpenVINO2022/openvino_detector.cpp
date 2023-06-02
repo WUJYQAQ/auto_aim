@@ -435,20 +435,22 @@ float OpenVINODetector::getDistance(cv::Point2f armor_center,cv::Point2f last_ar
 }
 
 
-void OpenVINODetector::getOptimalTarget(std::vector<ArmorObject> objects,ArmorObject &optimal_object){
-    float MIN_CENTER_DIST=999999;
+void OpenVINODetector::getOptimalTarget(std::vector<ArmorObject> objects, ArmorObject &optimal_object, ArmorColor desired_color) {
+    float MIN_CENTER_DIST = 999999;
     int last_armor_id;
-    for (auto armor_object : objects)
-        {
-            if(armor_object.center_dist < MIN_CENTER_DIST)
-            {
-                MIN_CENTER_DIST=armor_object.center_dist;
-                optimal_object=armor_object;
-                optimal_object.delta_centr=getDistance(optimal_object.center,last_armor_center);
-            }
 
+    for (auto armor_object : objects) {
+        // 添加筛选装甲板颜色的条件
+        if (armor_object.color == desired_color) {
+            if (armor_object.center_dist < MIN_CENTER_DIST) {
+                MIN_CENTER_DIST = armor_object.center_dist;
+                optimal_object = armor_object;
+                optimal_object.delta_centr = getDistance(optimal_object.center, last_armor_center);
+            }
         }
-    last_armor_center=optimal_object.center;
+    }
+
+    last_armor_center = optimal_object.center;
 }
 
 }  // namespace rm_auto_aim

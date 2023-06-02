@@ -1,10 +1,15 @@
 #ifndef POSE_HPP
 #define POSE_HPP
-#include "opencv2/core/core.hpp"
+#include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
+<<<<<<< HEAD
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include<iostream>
+=======
+#include <iostream>
+#include <Eigen/Core>
+>>>>>>> 9e882074549752b26dcbf28df87804cf7b599ca6
 
 
 enum ArmorType
@@ -79,6 +84,14 @@ public:
 
 	cv::Mat earth2pixel(Eigen::Quaternionf q1, cv::Point3f earth_coord);
 
+<<<<<<< HEAD
+=======
+	cv::Mat camera_to_pixel(cv::Point3f camera_coord);
+
+    cv::Point3f camera2world(Eigen::Quatern ionf q, cv::Point3f point, cv::Point3f trans_offset = cv::Point3f(0,0,0));
+
+    cv::Point3f world2camera(Eigen::Quaternionf q, cv::Point3f point, cv::Point3f trans_offset = cv::Point3f(0,0,0));
+>>>>>>> 9e882074549752b26dcbf28df87804cf7b599ca6
 	
 private:
 

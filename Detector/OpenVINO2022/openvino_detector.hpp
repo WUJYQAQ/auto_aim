@@ -100,7 +100,7 @@ public:
 
   float getDistance(cv::Point2f armor_center, cv::Point2f last_armor_center);
 
-  void getOptimalTarget(std::vector<ArmorObject> objects, ArmorObject &optimal_object);
+  void getOptimalTarget(std::vector<ArmorObject> objects, ArmorObject &optimal_object, ArmorColor desired_color);
 
 
 private:
